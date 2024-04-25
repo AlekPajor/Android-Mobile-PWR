@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Paint
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -21,8 +20,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -42,7 +39,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.demo_a4_compose.ui.theme.DEMO_A4_ComposeTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +61,11 @@ class MainActivity : ComponentActivity() {
 
         }
     }
+}
+
+fun nextButton(count: Int): Int {
+    val tempCount = count + 1
+    return if (tempCount == 4) 1 else tempCount
 }
 
 
@@ -115,7 +116,7 @@ fun DemoPrzelaczanePrzyciski() {
 
             // PIERWSZY przycisk, którego kliknięcie aktywuje DRUGI przycisk
             Button(
-                onClick = { stanPrzyciskow = if (stanPrzyciskow == 1) 2 else 1 },
+                onClick = { stanPrzyciskow = nextButton(stanPrzyciskow) },
                 enabled = ( stanPrzyciskow == 1 )
             ) {
                 Text(text = "PIERWSZY")
@@ -125,10 +126,19 @@ fun DemoPrzelaczanePrzyciski() {
 
             // DRUGI przycisk, którego kliknięcie aktywuje PIERWSZY przycisk
             Button(
-                onClick = { stanPrzyciskow = if (stanPrzyciskow == 1) 2 else 1 },
+                onClick = { stanPrzyciskow = nextButton(stanPrzyciskow) },
                 enabled = ( stanPrzyciskow == 2 )
             ) {
                 Text(text = "DRUGI")
+            }
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            Button(
+                onClick = { stanPrzyciskow = nextButton(stanPrzyciskow) },
+                enabled = ( stanPrzyciskow == 3 )
+            ) {
+                Text(text = "TRZECI")
             }
         }
     }
@@ -140,6 +150,7 @@ fun DemoNapiwek() {
     // zmienne modelu danych -> stanu aplikacji
     var tekstKosztuZamowienia by rememberSaveable { mutableStateOf("") }
     var tekstKwotyNapiwku by rememberSaveable { mutableStateOf("---") }
+    var zmiennaProcentowaNapiwku by rememberSaveable { mutableStateOf("") }
 
     // elementy interfejsu użytkownika
     Column(
@@ -167,12 +178,32 @@ fun DemoNapiwek() {
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Text( text = "Domyślny napiwek ma teraz stałą wartość 5%",
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Gray,
-            fontStyle = FontStyle.Italic
+        TextField(
+            value = zmiennaProcentowaNapiwku,
+            onValueChange = {
+                zmiennaProcentowaNapiwku = it
+            },
+            placeholder = {Text("Ile procent chciałbys zostawić?")},
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        if (zmiennaProcentowaNapiwku == "") {
+            Text( text = "Napiwek ma teraz wartość -%",
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Gray,
+                fontStyle = FontStyle.Italic
+            )
+        } else {
+            Text( text = "Napiwek ma teraz wartość $zmiennaProcentowaNapiwku%",
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Gray,
+                fontStyle = FontStyle.Italic
+            )
+        }
+
         Spacer(modifier = Modifier.height(20.dp))
 
         val context = LocalContext.current  //kontekst do wyswietlenia powiadomienia "Toast"
@@ -180,12 +211,14 @@ fun DemoNapiwek() {
             modifier = Modifier.align(Alignment.CenterHorizontally),
             onClick = {
                 val kosztZamowienia = tekstKosztuZamowienia.toDoubleOrNull()
-                if( kosztZamowienia!= null ) {
-                    val wartoscNapiwku = kosztZamowienia * 0.05
+                val procent = zmiennaProcentowaNapiwku.toFloatOrNull()
+                if( kosztZamowienia != null && procent != null ) {
+                    val wartoscNapiwku = kosztZamowienia * (procent / 100)
                     tekstKwotyNapiwku = String.format("%.2f zł", wartoscNapiwku)
                 } else {
                     tekstKwotyNapiwku = "---"
-                    Toast.makeText(context,"Niepoprawny koszt zamówienia",Toast.LENGTH_SHORT).show()
+                    zmiennaProcentowaNapiwku = "-"
+                    Toast.makeText(context,"Niepoprawne wpisane wartosci",Toast.LENGTH_SHORT).show()
                 }
             }
         ) {
