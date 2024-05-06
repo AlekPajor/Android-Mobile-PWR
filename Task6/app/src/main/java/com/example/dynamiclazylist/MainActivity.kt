@@ -44,7 +44,7 @@ import com.example.dynamiclazylist.ui.theme.DynamicLazyListTheme
 
 data class Song(
     val id: Int,
-    val title: String
+    var title: String
 )
 
 class MainActivity : ComponentActivity() {
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
             var isDisplayed by remember { mutableStateOf(true) }
             var textValue by remember { mutableStateOf("") }
             var alertText by remember { mutableStateOf("") }
-            var alerDisplayed by remember { mutableStateOf(true) }
+            var alertDisplayed by remember { mutableStateOf(true) }
 
             
             DynamicLazyListTheme {
@@ -145,23 +145,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-
                     }
                 }
             }
         }
     }
 }
-
-//if(alerDisplayed) {
-//    AlertDialog(
-//        onDismissRequest = {
-//            alerDisplayed = false
-//            alertText = ""
-//        },
-//        confirmButton = {
-//
-//            alerDisplayed = false
-//        }
-//    )
-//}

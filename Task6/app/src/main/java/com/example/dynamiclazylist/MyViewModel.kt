@@ -34,4 +34,8 @@ class MyViewModel: ViewModel() {
     fun deleteSong(song: Song) {
         _favourite.value.remove(song)
     }
+
+    fun updateSong(song: Song, newTitle: String) {
+        _favourite.value.find { it == song }?.title = newTitle
+    }
 }
