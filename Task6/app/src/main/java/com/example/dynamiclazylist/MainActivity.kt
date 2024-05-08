@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,22 +21,20 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dynamiclazylist.ui.theme.DynamicLazyListTheme
@@ -58,11 +55,10 @@ class MainActivity : ComponentActivity() {
             var isDisplayed by remember { mutableStateOf(true) }
             var textValue by remember { mutableStateOf("") }
             var alertText by remember { mutableStateOf("") }
-            var alertDisplayed by remember { mutableStateOf(true) }
-
+            var alertDisplayed by remember { mutableStateOf(false) }
+            var selectedId by remember { mutableIntStateOf(0) }
             
             DynamicLazyListTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -135,7 +131,12 @@ class MainActivity : ComponentActivity() {
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Icon(
-                                                    modifier = Modifier.scale(1.4f),
+                                                    modifier = Modifier
+                                                        .scale(1.4f)
+                                                        .clickable {
+                                                            selectedId = song.id
+                                                            alertDisplayed = true
+                                                        },
                                                     imageVector = Icons.Default.Create,
                                                     contentDescription = null
                                                 )
@@ -147,6 +148,52 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
+            if (alertDisplayed) {
+                AlertDialog(
+                    onDismissRequest = {
+                        alertDisplayed = false
+                    },
+                    text = {
+                        Column(
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(
+                                text = "Change song's name",
+                                fontSize = 22.sp
+                            )
+                            OutlinedTextField(
+                                value = alertText,
+                                onValueChange = {
+                                    alertText = it
+                                }
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                alertDisplayed = false
+                                myViewModel.updateSong(selectedId, alertText)
+                                isDisplayed = false
+                                selectedId = 0
+                                alertText = ""
+                                isDisplayed = true
+                            }
+                        ) {
+                            Text("Save")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                alertDisplayed = false
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
             }
         }
     }
