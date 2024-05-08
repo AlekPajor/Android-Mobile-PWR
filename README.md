@@ -9,3 +9,5 @@ Task2 - "Intents App" app to open some basic intents like settings and maps or c
 Task4 - "Broadcast receiver" app to handle some basic broadcasts, received through BroadcastReceiver
 
 Task5 - "All-in-one-compose" app that is basically a mix of each previous one, but using jetpack compose 
+
+Task6 - "Dynamic list" app that uses Lazy list and viewmodel to handle operations of displaying and editing list of items, and their content
